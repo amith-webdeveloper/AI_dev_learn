@@ -1,0 +1,1 @@
+this repo is for starting my AI engineer journey 
