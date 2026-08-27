@@ -21,15 +21,14 @@ try {
 
       prompt: `
 Give me the name, age and city of a fictional person.
+Return JSON with exactly these lowercase keys:
+"name", "age", "city"
 
-Return ONLY valid JSON with:
-name (string)
-age (number)
-city (string)
 `,
 
       system: "You are a helpful AI Tutor.",
       stream: false,
+      format: "json",
     }),
   });
 
