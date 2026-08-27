@@ -1,59 +1,68 @@
+import { z } from "zod";
 
+const PersonSchema = z.object({
+  name: z.string(),
+  age: z.int(),
+  city: z.string(),
+});
 
 try {
   console.log("Sending request to LLM API...");
+
   const response = await fetch("http://localhost:11434/api/generate", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    model: "qwen3:4b",
-    prompt: "Reply only with this JSON: {\"name\":\"John\",\"age\":25,\"city\":\"Bangalore\"}",
-    system: "You are a helpful AI Tutor.",
-    // options:{
-    //   temperature: 0.7,
-    //   num_predict:100
-    // },
-    stream: false,
-    think:false
+    method: "POST",
 
-  }),
-});
+    headers: {
+      "Content-Type": "application/json",
+    },
 
-console.log("Response recieved");
-if (!response.ok) {
+    body: JSON.stringify({
+      model: "qwen2.5:3b-instruct",
+
+      prompt: `
+Give me the name, age and city of a fictional person.
+
+Return ONLY valid JSON with:
+name (string)
+age (number)
+city (string)
+`,
+
+      system: "You are a helpful AI Tutor.",
+      stream: false,
+    }),
+  });
+
+  console.log("Response received");
+
+  if (!response.ok) {
     const errorData = await response.json();
 
-  console.error("HTTP Status:", response.status);
-  console.error("Error details:", errorData);
+    console.error("HTTP Status:", response.status);
+    console.error("Error details:", errorData);
 
-  throw new Error("LLM API request failed");
+    throw new Error("LLM API request failed");
   }
 
-//  console.log("Creating reader...");
+  const data = await response.json();
 
-// const reader = response.body.getReader();
-// const decoder = new TextDecoder();
+  console.log("LLM response:");
+  console.log(data.response);
 
-// console.log("Reader created.");
+  // JSON string → JavaScript object
+  const person = JSON.parse(data.response);
+  console.log("json parse : ",person);
 
+  // Validate with Zod
+  const validatedPerson = PersonSchema.parse(person);
 
-// while (true) {
-//   const { value, done } = await reader.read();
+  console.log("Validated person:");
+  console.log(validatedPerson);
 
-//   if (done) {
-//     break;
-//   }
+  console.log("Name:", validatedPerson.name);
+  console.log("Age:", validatedPerson.age);
+  console.log("City:", validatedPerson.city);
 
-//   const text = decoder.decode(value);
-//   const data = JSON.parse(text);
-
-// process.stdout.write(data.response)
-// }
-const data = await response.json();
-
-console.log(data.response);
 } catch (error) {
   console.error("Request failed:", error);
 }
