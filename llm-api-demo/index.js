@@ -1,6 +1,7 @@
 
 
 try {
+  console.log("Sending request to LLM API...");
   const response = await fetch("http://localhost:11434/api/generate", {
   method: "POST",
   headers: {
@@ -8,12 +9,20 @@ try {
   },
   body: JSON.stringify({
     model: "qwen3:4b",
-    prompt: "Explain what an LLM is in one simple sentence.",
-    stream: true,
+    prompt: "Reply only with this JSON: {\"name\":\"John\",\"age\":25,\"city\":\"Bangalore\"}",
+    system: "You are a helpful AI Tutor.",
+    // options:{
+    //   temperature: 0.7,
+    //   num_predict:100
+    // },
+    stream: false,
+    think:false
+
   }),
 });
 
-  if (!response.ok) {
+console.log("Response recieved");
+if (!response.ok) {
     const errorData = await response.json();
 
   console.error("HTTP Status:", response.status);
@@ -22,22 +31,29 @@ try {
   throw new Error("LLM API request failed");
   }
 
- const reader = response.body.getReader();
-const decoder = new TextDecoder();
+//  console.log("Creating reader...");
 
-while (true) {
-  const { value, done } = await reader.read();
+// const reader = response.body.getReader();
+// const decoder = new TextDecoder();
 
-  if (done) {
-    break;
-  }
+// console.log("Reader created.");
 
- const chunk = decoder.decode(value);
-const data = JSON.parse(chunk);
 
-process.stdout.write(data.response);
-}
+// while (true) {
+//   const { value, done } = await reader.read();
 
+//   if (done) {
+//     break;
+//   }
+
+//   const text = decoder.decode(value);
+//   const data = JSON.parse(text);
+
+// process.stdout.write(data.response)
+// }
+const data = await response.json();
+
+console.log(data.response);
 } catch (error) {
   console.error("Request failed:", error);
 }
