@@ -35,41 +35,41 @@ function App() {
         }),
       });
 
-    const reader = response.body.getReader();
-const decoder = new TextDecoder();
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-let aiMessage = "";
+      let aiMessage = "";
 
-setMessages((currentMessages) => [
-  ...currentMessages,
-  {
-    role: "assistant",
-    content: "",
-  },
-]);
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          role: "assistant",
+          content: "",
+        },
+      ]);
 
-while (true) {
-  const { value, done } = await reader.read();
+      while (true) {
+        const { value, done } = await reader.read();
 
-  if (done) {
-    break;
-  }
+        if (done) {
+          break;
+        }
 
-  const chunk = decoder.decode(value);
+        const chunk = decoder.decode(value);
 
-  aiMessage += chunk;
+        aiMessage += chunk;
 
-  setMessages((currentMessages) => {
-    const updatedMessages = [...currentMessages];
+        setMessages((currentMessages) => {
+          const updatedMessages = [...currentMessages];
 
-    updatedMessages[updatedMessages.length - 1] = {
-      role: "assistant",
-      content: aiMessage,
-    };
+          updatedMessages[updatedMessages.length - 1] = {
+            role: "assistant",
+            content: aiMessage,
+          };
 
-    return updatedMessages;
-  });
-}
+          return updatedMessages;
+        });
+      }
     } catch (error) {
       console.error("Request failed:", error);
     }
